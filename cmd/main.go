@@ -1,6 +1,7 @@
 package main
 
 import (
+	"demo/go-server/configs"
 	"demo/go-server/internal/auth"
 	"demo/go-server/internal/hello"
 	"fmt"
@@ -11,10 +12,12 @@ func main() {
 	const PORT = "8081"
 	address := fmt.Sprintf(":%s", PORT)
 
-	// conf := configs.LoadConfig()
+	conf := configs.LoadConfig()
 	router := http.NewServeMux()
 	hello.NewHelloHandler(router)
-	auth.NewAuthHandler(router)
+	auth.NewAuthHandler(router, auth.AuthHandlerDeps{
+		Config: conf,
+	})
 
 	server := http.Server{
 		Addr:    address,
