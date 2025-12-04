@@ -4,9 +4,10 @@ services:
     image: postgres:16.4
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: my_pass
+      POSTGRES_PASSWORD: crudGo
+      POSTGRES_DB: go_crud_db
       PGDATA: /data/postgres
     volumes:
-      - ./postgres-data:/data-postgres
+      - ./postgres-data:/data/postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
