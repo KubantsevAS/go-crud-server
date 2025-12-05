@@ -3,7 +3,6 @@ package main
 import (
 	"demo/go-server/configs"
 	"demo/go-server/internal/auth"
-	"demo/go-server/internal/hello"
 	"demo/go-server/internal/link"
 	"demo/go-server/pkg/db"
 	"fmt"
@@ -22,7 +21,7 @@ func main() {
 	linkRepo := link.NewLinkRepository(database)
 
 	// Handlers
-	hello.NewHelloHandler(router)
+	// hello.NewHelloHandler(router)
 	auth.NewAuthHandler(router, auth.AuthHandlerDeps{
 		Config: conf,
 	})
