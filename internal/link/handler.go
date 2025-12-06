@@ -5,6 +5,9 @@ import (
 	"demo/go-server/pkg/response"
 	"fmt"
 	"net/http"
+	"strconv"
+
+	"gorm.io/gorm"
 )
 
 type LinkHandlerDeps struct {
@@ -58,7 +61,31 @@ func (handler *LinkHandler) Create() http.HandlerFunc {
 }
 
 func (handler *LinkHandler) Update() http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {}
+	return func(w http.ResponseWriter, req *http.Request) {
+		body, err := request.HandleBody[LinkUpdateRequest](&w, req)
+		if err != nil {
+			return
+		}
+
+		idString := req.PathValue("id")
+		id, err := strconv.ParseUint(idString, 10, 32)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		link, err := handler.LinkRepository.Update(&Link{
+			Model: gorm.Model{ID: uint(id)},
+			Url:   body.Url,
+			Hash:  body.Hash,
+		})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		response.WriteResponse(w, link, 201)
+	}
 }
 
 func (handler *LinkHandler) Delete() http.HandlerFunc {
