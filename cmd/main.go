@@ -22,7 +22,6 @@ func main() {
 	linkRepo := link.NewLinkRepository(database)
 
 	// Handlers
-	// hello.NewHelloHandler(router)
 	auth.NewAuthHandler(router, auth.AuthHandlerDeps{
 		Config: conf,
 	})
