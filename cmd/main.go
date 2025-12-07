@@ -29,9 +29,15 @@ func main() {
 		LinkRepository: linkRepo,
 	})
 
+	// Middlewares
+	stack := middleware.Chain(
+		middleware.CORS,
+		middleware.Logging,
+	)
+
 	server := http.Server{
 		Addr:    address,
-		Handler: middleware.CORS(middleware.Logging(router)),
+		Handler: stack(router),
 	}
 
 	fmt.Printf("Server is listening on port %s\n", PORT)
