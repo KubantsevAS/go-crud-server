@@ -41,6 +41,17 @@ func (repo *LinkRepository) GetByHash(hash string) (*Link, error) {
 	return &link, nil
 }
 
+func (repo *LinkRepository) GetById(id uint) (*Link, error) {
+	var link Link
+	result := repo.DataBase.DB.First(&link, "id = ?", id)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &link, nil
+}
+
 func (repo *LinkRepository) Update(link *Link) (*Link, error) {
 	result := repo.DataBase.DB.Clauses(clause.Returning{}).Updates(link)
 
@@ -49,4 +60,14 @@ func (repo *LinkRepository) Update(link *Link) (*Link, error) {
 	}
 
 	return link, nil
+}
+
+func (repo *LinkRepository) Delete(id uint) error {
+	result := repo.DataBase.DB.Delete(&Link{}, id)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }

@@ -3,7 +3,6 @@ package link
 import (
 	"demo/go-server/pkg/request"
 	"demo/go-server/pkg/response"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -90,8 +89,24 @@ func (handler *LinkHandler) Update() http.HandlerFunc {
 
 func (handler *LinkHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		id := req.PathValue("id")
-		fmt.Println(id)
+		idString := req.PathValue("id")
+		id, err := strconv.ParseUint(idString, 10, 32)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if _, err := handler.LinkRepository.GetById(uint(id)); err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+
+		if err := handler.LinkRepository.Delete(uint(id)); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		response.WriteResponse(w, nil, 200)
 	}
 }
 
