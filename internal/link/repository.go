@@ -43,7 +43,7 @@ func (repo *LinkRepository) GetByHash(hash string) (*Link, error) {
 
 func (repo *LinkRepository) GetById(id uint) (*Link, error) {
 	var link Link
-	result := repo.DataBase.DB.First(&link, "id = ?", id)
+	result := repo.DataBase.DB.First(&link, id)
 
 	if result.Error != nil {
 		return nil, result.Error

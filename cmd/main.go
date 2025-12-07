@@ -5,6 +5,7 @@ import (
 	"demo/go-server/internal/auth"
 	"demo/go-server/internal/link"
 	"demo/go-server/pkg/db"
+	"demo/go-server/pkg/middleware"
 	"fmt"
 	"net/http"
 )
@@ -31,7 +32,7 @@ func main() {
 
 	server := http.Server{
 		Addr:    address,
-		Handler: router,
+		Handler: middleware.CORS(middleware.Logging(router)),
 	}
 
 	fmt.Printf("Server is listening on port %s\n", PORT)
