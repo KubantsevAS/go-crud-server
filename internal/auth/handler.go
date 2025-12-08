@@ -2,6 +2,7 @@ package auth
 
 import (
 	"demo/go-server/configs"
+	"demo/go-server/pkg/jwt"
 	"demo/go-server/pkg/request"
 	"demo/go-server/pkg/response"
 	"fmt"
@@ -37,13 +38,18 @@ func (handler *AuthHandler) Login() http.HandlerFunc {
 
 		email, err := handler.AuthService.Login(body.Email, body.Password)
 		if err != nil {
-			fmt.Println(err.Error())
+			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
 
-		fmt.Println(email)
+		token, err := jwt.NewJWT(handler.Config.Auth.Secret).Create(email)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
 		data := LoginResponse{
-			Token: handler.Config.Auth.Secret,
+			Token: token,
 		}
 		response.WriteResponse(w, data, 201)
 	}
@@ -52,18 +58,27 @@ func (handler *AuthHandler) Login() http.HandlerFunc {
 func (handler *AuthHandler) Register() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		body, err := request.HandleBody[RegisterRequest](&w, req)
-
 		if err != nil {
 			fmt.Println(err.Error())
 			return
 		}
 
 		email, err := handler.AuthService.Register(body.Email, body.Password, body.Name)
-
 		if err != nil {
-			fmt.Println(err.Error())
+			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
-		response.WriteResponse(w, email, 201)
+
+		token, err := jwt.NewJWT(handler.Config.Auth.Secret).Create(email)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		data := RegisterResponse{
+			Token: token,
+		}
+
+		response.WriteResponse(w, data, 201)
 	}
 }
