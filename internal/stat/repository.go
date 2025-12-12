@@ -20,16 +20,17 @@ func NewStatRepository(database *db.Db) *StatRepository {
 func (repo *StatRepository) AddClick(linkId uint) {
 	var stat Stat
 	currentDate := datatypes.Date(time.Now())
-	repo.DataBase.Find(&stat, "linkId = ? and date = ?", linkId, currentDate)
+	repo.DataBase.DB.Find(&stat, "link_id = ? and date = ?", linkId, currentDate)
 
 	if stat.ID == 0 {
-		repo.DataBase.Create(Stat{
+		newStat := Stat{
 			LinkId: linkId,
 			Clicks: 1,
 			Date:   currentDate,
-		})
+		}
+		repo.DataBase.DB.Create(&newStat)
 	} else {
 		stat.Clicks += 1
-		repo.DataBase.Save(&stat)
+		repo.DataBase.DB.Save(&stat)
 	}
 }

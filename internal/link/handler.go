@@ -2,6 +2,7 @@ package link
 
 import (
 	"demo/go-server/configs"
+	"demo/go-server/internal/stat"
 	"demo/go-server/pkg/middleware"
 	"demo/go-server/pkg/request"
 	"demo/go-server/pkg/response"
@@ -15,10 +16,12 @@ import (
 type LinkHandlerDeps struct {
 	LinkRepository *LinkRepository
 	Config         *configs.Config
+	StatRepository *stat.StatRepository
 }
 
 type LinkHandler struct {
 	LinkRepository *LinkRepository
+	StatRepository *stat.StatRepository
 }
 
 type LinkResponse struct {
@@ -28,6 +31,7 @@ type LinkResponse struct {
 func NewLinkHandler(router *http.ServeMux, deps LinkHandlerDeps) {
 	handler := &LinkHandler{
 		LinkRepository: deps.LinkRepository,
+		StatRepository: deps.StatRepository,
 	}
 	router.HandleFunc("POST /link", handler.Create())
 	router.Handle("PATCH /link/{id}", middleware.IsAuthed(handler.Update(), deps.Config))
@@ -131,6 +135,7 @@ func (handler *LinkHandler) GoTo() http.HandlerFunc {
 			return
 		}
 
+		handler.StatRepository.AddClick(link.ID)
 		http.Redirect(w, req, link.Url, http.StatusTemporaryRedirect)
 	}
 }

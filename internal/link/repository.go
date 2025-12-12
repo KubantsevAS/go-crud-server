@@ -74,7 +74,7 @@ func (repo *LinkRepository) Delete(id uint) error {
 
 func (repo *LinkRepository) GetAll(limit, offset int) []Link {
 	var links []Link
-	repo.DataBase.
+	repo.DataBase.DB.
 		Table("links").
 		Where("deleted_at is null").
 		Order("id asc").
@@ -87,7 +87,7 @@ func (repo *LinkRepository) GetAll(limit, offset int) []Link {
 
 func (repo *LinkRepository) Count() int64 {
 	var count int64
-	repo.DataBase.
+	repo.DataBase.DB.
 		Table("links").
 		Where("deleted_at is null").
 		Count(&count)
