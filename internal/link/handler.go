@@ -2,7 +2,7 @@ package link
 
 import (
 	"demo/go-server/configs"
-	"demo/go-server/internal/stat"
+	"demo/go-server/pkg/di"
 	"demo/go-server/pkg/middleware"
 	"demo/go-server/pkg/request"
 	"demo/go-server/pkg/response"
@@ -16,12 +16,12 @@ import (
 type LinkHandlerDeps struct {
 	LinkRepository *LinkRepository
 	Config         *configs.Config
-	StatRepository *stat.StatRepository
+	StatRepository di.IStatRepository
 }
 
 type LinkHandler struct {
 	LinkRepository *LinkRepository
-	StatRepository *stat.StatRepository
+	StatRepository di.IStatRepository
 }
 
 type LinkResponse struct {
