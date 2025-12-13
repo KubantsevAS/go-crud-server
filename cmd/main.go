@@ -7,6 +7,7 @@ import (
 	"demo/go-server/internal/stat"
 	"demo/go-server/internal/user"
 	"demo/go-server/pkg/db"
+	"demo/go-server/pkg/event"
 	"demo/go-server/pkg/middleware"
 	"fmt"
 	"net/http"
@@ -19,6 +20,7 @@ func main() {
 	conf := configs.LoadConfig()
 	database := db.NewDb(conf)
 	router := http.NewServeMux()
+	eventBus := event.NewEventBus()
 
 	// Repositories
 	linkRepo := link.NewLinkRepository(database)
@@ -27,6 +29,12 @@ func main() {
 
 	// Services
 	authService := auth.NewAuthService(userRepo)
+	statService := stat.NewStatService(&stat.StatServiceDeps{
+		StatRepository: statRepo,
+		EventBus:       eventBus,
+	})
+
+	go statService.AddClick()
 
 	// Handlers
 	auth.NewAuthHandler(router, auth.AuthHandlerDeps{
@@ -35,7 +43,7 @@ func main() {
 	})
 	link.NewLinkHandler(router, link.LinkHandlerDeps{
 		LinkRepository: linkRepo,
-		StatRepository: statRepo,
+		EventBus:       eventBus,
 		Config:         conf,
 	})
 

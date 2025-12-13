@@ -2,7 +2,7 @@ package link
 
 import (
 	"demo/go-server/configs"
-	"demo/go-server/pkg/di"
+	"demo/go-server/pkg/event"
 	"demo/go-server/pkg/middleware"
 	"demo/go-server/pkg/request"
 	"demo/go-server/pkg/response"
@@ -15,13 +15,13 @@ import (
 
 type LinkHandlerDeps struct {
 	LinkRepository *LinkRepository
+	EventBus       *event.EventBus
 	Config         *configs.Config
-	StatRepository di.IStatRepository
 }
 
 type LinkHandler struct {
 	LinkRepository *LinkRepository
-	StatRepository di.IStatRepository
+	EventBus       *event.EventBus
 }
 
 type LinkResponse struct {
@@ -31,7 +31,7 @@ type LinkResponse struct {
 func NewLinkHandler(router *http.ServeMux, deps LinkHandlerDeps) {
 	handler := &LinkHandler{
 		LinkRepository: deps.LinkRepository,
-		StatRepository: deps.StatRepository,
+		EventBus:       deps.EventBus,
 	}
 	router.HandleFunc("POST /link", handler.Create())
 	router.Handle("PATCH /link/{id}", middleware.IsAuthed(handler.Update(), deps.Config))
@@ -135,7 +135,10 @@ func (handler *LinkHandler) GoTo() http.HandlerFunc {
 			return
 		}
 
-		handler.StatRepository.AddClick(link.ID)
+		go handler.EventBus.Publish(event.Event{
+			Type: event.LinkVisited,
+			Data: link.ID,
+		})
 		http.Redirect(w, req, link.Url, http.StatusTemporaryRedirect)
 	}
 }
