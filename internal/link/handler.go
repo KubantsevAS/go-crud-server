@@ -145,15 +145,26 @@ func (handler *LinkHandler) GoTo() http.HandlerFunc {
 
 func (handler *LinkHandler) GetAllLinks() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		limit, err := strconv.Atoi(req.URL.Query().Get("limit"))
-		if err != nil {
-			http.Error(w, "Invalid limit", http.StatusBadRequest)
-			return
+		limit, offset := 0, 0
+
+		limitStr := req.URL.Query().Get("limit")
+		if limitStr != "" {
+			var err error
+			limit, err = strconv.Atoi(limitStr)
+			if err != nil {
+				http.Error(w, "Invalid limit", http.StatusBadRequest)
+				return
+			}
 		}
-		offset, err := strconv.Atoi(req.URL.Query().Get("offset"))
-		if err != nil {
-			http.Error(w, "Invalid offset", http.StatusBadRequest)
-			return
+
+		offsetStr := req.URL.Query().Get("offset")
+		if offsetStr != "" {
+			var err error
+			offset, err = strconv.Atoi(offsetStr)
+			if err != nil {
+				http.Error(w, "Invalid offset", http.StatusBadRequest)
+				return
+			}
 		}
 
 		links := handler.LinkRepository.GetAll(limit, offset)
