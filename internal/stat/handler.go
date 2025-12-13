@@ -3,9 +3,14 @@ package stat
 import (
 	"demo/go-server/configs"
 	"demo/go-server/pkg/middleware"
-	"fmt"
+	"demo/go-server/pkg/response"
 	"net/http"
 	"time"
+)
+
+const (
+	GroupByDay   = "day"
+	GroupByMonth = "month"
 )
 
 type StatHandlerDeps struct {
@@ -30,11 +35,6 @@ func NewStatHandler(router *http.ServeMux, deps StatHandlerDeps) {
 
 func (handler *StatHandler) GetStat() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		const (
-			day   = "day"
-			month = "month"
-		)
-
 		from, err := parseDateParam("from", req)
 		if err != nil {
 			http.Error(w, "Invalid from", http.StatusBadRequest)
@@ -48,14 +48,13 @@ func (handler *StatHandler) GetStat() http.HandlerFunc {
 		}
 
 		by := req.URL.Query().Get("by")
-		if by != day && by != month && by != "" {
+		if by != GroupByDay && by != GroupByMonth && by != "" {
 			http.Error(w, "Invalid by", http.StatusBadRequest)
 			return
 		}
 
-		fmt.Println(from)
-		fmt.Println(to)
-		fmt.Println(by)
+		stats := handler.StatRepository.GetAll(by, from, to)
+		response.WriteResponse(w, stats, 200)
 	}
 }
 
