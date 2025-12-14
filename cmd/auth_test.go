@@ -38,10 +38,16 @@ func initData(db *gorm.DB) {
 	})
 }
 
+func removeData(db *gorm.DB) {
+	db.Unscoped().
+		Where("email = ?", "a@a.com").
+		Delete(&user.User{})
+}
+
 func TestLoginSuccess(t *testing.T) {
-	// Precondition
 	db := initDb()
 	initData(db)
+	defer removeData(db)
 
 	ts := httptest.NewServer(App())
 	defer ts.Close()
@@ -75,6 +81,10 @@ func TestLoginSuccess(t *testing.T) {
 }
 
 func TestLoginFail(t *testing.T) {
+	db := initDb()
+	initData(db)
+	defer removeData(db)
+
 	ts := httptest.NewServer(App())
 	defer ts.Close()
 
