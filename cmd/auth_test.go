@@ -33,7 +33,7 @@ func initDb() *gorm.DB {
 func initData(db *gorm.DB) {
 	db.Create(&user.User{
 		Email:    "a@a.com",
-		Password: "$2a$10$.DuLxeEK7oFAWYt6pXmdzucWnNUDl5I2h1qP0QavAHz4Ur/bmiLZ.",
+		Password: "$2a$10$Ee1mYbQ2ZgPBf9D/nsDXdu0BpYilNfKhAkM1srPIk8pxDlpYnyNxG",
 		Name:     "John Doe",
 	})
 }
