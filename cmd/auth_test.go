@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"demo/go-server/internal/auth"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -24,5 +25,19 @@ func TestLoginSuccess(t *testing.T) {
 	}
 	if res.StatusCode != 201 {
 		t.Fatalf("Expected %d got %d", 201, res.StatusCode)
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var resData auth.LoginResponse
+	err = json.Unmarshal(body, &resData)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resData.Token == "" {
+		t.Fatalf("Token empty")
 	}
 }
